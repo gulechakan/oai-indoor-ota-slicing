@@ -294,6 +294,28 @@ pc.defineStructParameter("b210_nodes", "B210 Radios", [],
                          ],
                          )
 
+portal.context.defineStructParameter(
+    "freq_ranges", "Frequency Ranges To Transmit In", [],
+    multiValue=True,
+    min=0,
+    multiValueTitle="Frequency ranges to be used for transmission.",
+    members=[
+        portal.Parameter(
+            "freq_min",
+            "Frequency Range Min",
+            portal.ParameterType.BANDWIDTH,
+            3599.0,
+            longDescription="Values are rounded to the nearest kilohertz."
+        ),
+        portal.Parameter(
+            "freq_max",
+            "Frequency Range Max",
+            portal.ParameterType.BANDWIDTH,
+            3640.0,
+            longDescription="Values are rounded to the nearest kilohertz."
+        ),
+    ])
+
 params = pc.bindParameters()
 pc.verifyParameters()
 request = pc.makeRequestRSpec()
@@ -322,6 +344,9 @@ for i, x310_radio in enumerate(params.x310_radios):
 
 for b210_node in params.b210_nodes:
     b210_nuc_pair(b210_node)
+
+for frange in params.freq_ranges:
+    request.requestSpectrum(frange.freq_min, frange.freq_max, 0)
 
 tour = IG.Tour()
 tour.Description(IG.Tour.MARKDOWN, tourDescription)
