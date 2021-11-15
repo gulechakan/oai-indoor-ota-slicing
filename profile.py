@@ -150,11 +150,6 @@ DEFAULT_NR_RAN_HASH = "8082394371e5abcec8a7ab4cf501d79df6acd3e5"
 DEFAULT_NR_CN_HASH = "v1.2.1"
 OAI_DEPLOY_SCRIPT = os.path.join(BIN_PATH, "deploy-oai.sh")
 
-BENCH_SDR_IDS = {
-    "bench_a": ["oai-wb-a1", "oai-wb-a2"],
-    "bench_b": ["oai-wb-b1", "oai-wb-b2"],
-    "bench_c": ["alex-3", "alex-4"],
-}
 
 def x310_node_pair(idx, x310_radio):
     role = "nodeb"
@@ -258,7 +253,7 @@ indoor_ota_x310s = [
      "USRP X310 #4"),
 ]
 pc.defineStructParameter("x310_radios", "X310 Radios", [],
-                         multiValue=False,
+                         multiValue=True,
                          itemDefaultValue={},
                          min=0, max=None,
                          members=[
@@ -314,7 +309,8 @@ portal.context.defineStructParameter(
             3640.0,
             longDescription="Values are rounded to the nearest kilohertz."
         ),
-    ])
+    ]
+)
 
 params = pc.bindParameters()
 pc.verifyParameters()
