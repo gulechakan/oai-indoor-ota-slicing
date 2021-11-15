@@ -32,6 +32,10 @@ The following will be deployed:
 - Server-class compute node with OAI 5G gNodeB (fiber connection to 5GCN and X310)
 - One or more Intel NUC compute nodes with a 5G module and supporting tools
 
+Note: this profile currently requires use of the 3599-3640 MHz spectrum range.
+This range will be requested by the profile unless you specify otherwise during
+the parameterization step while instantiating this profile.
+
 #### Bleeding-edge Software Caveats!
 
 The OAI 5G RAN components are a work-in-progress at the time of writing this. In
@@ -129,11 +133,9 @@ Known Issues:
 
 - The gNodeB soft modem may spam warnings/errors about missed DCI or
   ULSCH detections. It may crash unexpectedly.
-
 - Exiting the gNodeB soft modem with ctrl-c will often leave the SDR in a funny
   state, so that the next time you start it, it may crash with a UHD error. If
   this happens, simply start it again.
-
 - The module may not attach to the network or pick up an IP address on the first
   try. If that happens, put the module into airplane mode with `sudo modemctl
   airplane-mode`, restart quectel-CM, then bring the module back online.
@@ -252,7 +254,7 @@ indoor_ota_x310s = [
     ("ota-x310-4",
      "USRP X310 #4"),
 ]
-pc.defineStructParameter("x310_radios", "X310 Radios", [],
+pc.defineStructParameter("x310_radios", "X310 Radios (for OAI gNodeB)", [],
                          multiValue=True,
                          itemDefaultValue={},
                          min=0, max=1,
@@ -267,22 +269,22 @@ pc.defineStructParameter("x310_radios", "X310 Radios", [],
 
 indoor_ota_nucs = [
     ("ota-nuc1",
-     "nuc1 w/B210"),
+     "nuc1 w/ Quectel UE"),
     ("ota-nuc2",
-     "nuc2 w/B210"),
+     "nuc2 w/ Quectel UE"),
     ("ota-nuc3",
-     "nuc3 w/B210"),
+     "nuc3 w/ Quectel UE"),
     ("ota-nuc4",
-     "nuc4 w/B210"),
+     "nuc4 w/ Quectel UE"),
 ]
 
-pc.defineStructParameter("b210_nodes", "B210 Radios", [],
+pc.defineStructParameter("b210_nodes", "COTS UE Nodes", [],
                          multiValue=True,
                          min=0, max=None,
                          members=[
                              portal.Parameter(
                                  "component_id",
-                                 "NUC compute w/ B210",
+                                 "NUC compute w/ Quectel RM500Q UE",
                                  portal.ParameterType.STRING,
                                  indoor_ota_nucs[0],
                                  indoor_ota_nucs)
