@@ -291,22 +291,7 @@ pc.defineStructParameter("b210_nodes", "B210 Radios", [],
 
 portal.context.defineStructParameter(
     "freq_ranges", "Frequency Ranges To Transmit In",
-    defaultValue=[
-        portal.Parameter(
-            "freq_min",
-            "Frequency Range Min",
-            portal.ParameterType.BANDWIDTH,
-            3599.0,
-            longDescription="Values are rounded to the nearest kilohertz."
-        ),
-        portal.Parameter(
-            "freq_max",
-            "Frequency Range Max",
-            portal.ParameterType.BANDWIDTH,
-            3640.0,
-            longDescription="Values are rounded to the nearest kilohertz."
-        ),
-    ],
+    defaultValue=[{"freq_min": 3599.0, "freq_max": 3640.0}],
     multiValue=True,
     min=0,
     multiValueTitle="Frequency ranges to be used for transmission.",
