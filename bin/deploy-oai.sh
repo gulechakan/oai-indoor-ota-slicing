@@ -97,6 +97,9 @@ function setup_cn_node {
     git checkout $COMMIT_HASH
     ./scripts/syncComponents.sh
     echo cloning and syncing oai-cn5g-fed... done.
+    echo replacing a couple of configuration files
+    cp /local/repository/etc/oai/docker-compose-mini-nrf.yaml /var/tmp/oai-cn5g-fed/docker-compose/docker-compose-mini-nrf.yaml
+    cp /local/repository/etc/oai/oai_db1.sql /var/tmp/oai-cn5g-fed/docker-compose/oai_db1.sql
     echo setting up cn node... done.
 
 }
