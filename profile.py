@@ -1,0 +1,331 @@
+#!/usr/bin/env python
+
+import os
+
+import geni.portal as portal
+import geni.rspec.pg as rspec
+import geni.rspec.igext as IG
+import geni.rspec.emulab.pnext as PN
+import geni.rspec.emulab.spectrum as spectrum
+
+
+tourDescription = """
+## OAI 5G using the POWDER Indoor OTA Lab
+
+This profile instantiates an experiment for testing OAI 5G with COTS UEs in
+standalone mode using resources in the POWDER indoor over-the-air (OTA) lab.
+The indoor OTA lab includes:
+
+- 4x NI X310 SDRs, each with a UBX-160 daughter card occupying channel 0. The
+  TX/RX and RX2 ports on this channel are connected to broadband antennas. The
+  SDRs are connected via fiber to near-edge compute resources.
+- 4x Intel NUC compute nodes, each equipped with a Quectel RM500Q-GL 5G module
+  that has been provisioned with a SIM card. The NUCs are also equipped with NI
+  B210 SDRs, but they are not the focus of this profile.
+
+You can find a diagram of the lab layout here: [OTA Lab
+Diagram](https://gitlab.flux.utah.edu/powderrenewpublic/powder-deployment/-/raw/master/diagrams/ota-lab.png)
+
+The following will be deployed:
+
+- Server-class compute node with a Docker-based OAI 5G Core Network
+- Server-class compute node with OAI 5G gNodeB (fiber connection to 5GCN and X310)
+- One or more Intel NUC compute nodes with a 5G module and supporting tools
+
+#### Bleeding-edge Software Caveats!
+
+The OAI 5G RAN components are a work-in-progress at the time of writing this. In
+fact, this profile currently targets a feature branch that has yet to be merged
+into the mainline OAI develop branch. You are likely to see warnings, errors,
+crashes, etc, when running the OAI gNodeB soft modem. Please subscribe to the
+OAI user or developer mailing lists to monitor and ask questions about the
+current status of OAI 5G:
+https://gitlab.eurecom.fr/oai/openairinterface5g/-/wikis/MailingList.
+
+"""
+
+tourInstructions = """
+
+Startup scripts will still be running when after your experiment becomes ready.
+Watch the "Startup" column on the "List View" tab for your experiment and wait
+until all of the compute nodes show "Finished" before proceeding.
+
+After all startup scripts have finished...
+
+On `cn`:
+
+If you'd like to monitor traffic between the various network functions and the
+gNodeB, start tshark in a session:
+
+```
+sudo tshark -i demo-oai \
+  -f "not arp and not port 53 and not host archive.ubuntu.com and not host security.ubuntu.com"
+```
+
+In another session, start the 5G core network services. It will take several
+seconds for the services to start up. Make sure the script indicates that the
+services are healthy before moving on.
+
+```
+cd /var/tmp/oai-cn5g-fed/docker-compose
+sudo python3 ./core-network.py --type start-mini --fqdn no --scenario 1
+```
+
+In yet another session, start following the logs for the AMF. This way you can
+see when the UE syncs with the network.
+
+```
+sudo docker logs -f oai-amf
+```
+
+On `nodeb`:
+
+```
+sudo /var/tmp/oairan/cmake_targets/ran_build/build/nr-softmodem -E \
+  -O /var/tmp/etc/oai/gnb.sa.band78.fr1.106PRB.usrpx310.conf --sa
+```
+
+On `ota-nucX`:
+
+After you've started the gNodeB, you can bring the COTS UE online. First, start
+the Quectel connection manager:
+
+```
+sudo quectel-CM -s oai -4
+```
+
+In another session on the same node, bring the UE online:
+
+```
+# turn modem on
+sudo modemctl full-functionality
+```
+
+The UE should attach to the network and pick up an IP address on the wwan
+interface associated with the module. You'll see the wwan interface name and the
+IP address in the stdout of the quectel-CM process.
+
+After the UE associates, open another session and configure the wwan interface
+with the appropriate IP address and add the following route via that interface.
+
+```
+# configure IP and add route
+sudo ifconfig <wwan iface name from quectel-CM> <IP address from quectel-CM>
+sudo route add -net 192.168.70.0/24 dev <wwan iface name from quectel-CM>
+
+```
+
+You should now be able to generate traffic in either direction:
+
+```
+# from UE to CN traffic gen node (in session on ota-nucX)
+ping 192.168.70.135
+
+# from CN traffic generation service to UE (in session on cn node)
+sudo docker exec -it oai-ext-dn ping <IP address from quectel-CM>
+```
+
+Known Issues:
+
+- The gNodeB soft modem may spam warnings/errors about missed DCI or
+  ULSCH detections. It may crash unexpectedly.
+
+- Exiting the gNodeB soft modem with ctrl-c will often leave the SDR in a funny
+  state, so that the next time you start it, it may crash with a UHD error. If
+  this happens, simply start it again.
+
+- The module may not attach to the network or pick up an IP address on the first
+  try. If that happens, put the module into airplane mode with `sudo modemctl
+  airplane-mode`, restart quectel-CM, then bring the module back online.
+
+"""
+
+BIN_PATH = "/local/repository/bin"
+ETC_PATH = "/local/repository/etc"
+SRSLTE_IMG = "urn:publicid:IDN+emulab.net+image+PowderTeam:U18LL-SRSLTE"
+UBUNTU_IMG = "urn:publicid:IDN+emulab.net+image+emulab-ops//UBUNTU18-64-STD"
+COTS_UE_IMG = "urn:publicid:IDN+emulab.net+image+PowderTeam:cots-base-image"
+COMP_MANAGER_ID = "urn:publicid:IDN+emulab.net+authority+cm"
+DEFAULT_NR_RAN_HASH = "8082394371e5abcec8a7ab4cf501d79df6acd3e5"
+DEFAULT_NR_CN_HASH = "v1.2.1"
+OAI_DEPLOY_SCRIPT = os.path.join(BIN_PATH, "deploy-oai.sh")
+
+BENCH_SDR_IDS = {
+    "bench_a": ["oai-wb-a1", "oai-wb-a2"],
+    "bench_b": ["oai-wb-b1", "oai-wb-b2"],
+    "bench_c": ["alex-3", "alex-4"],
+}
+
+def x310_node_pair(idx, x310_radio):
+    role = "nodeb"
+    node = request.RawPC("{}-comp".format(x310_radio.component_id))
+    node.component_manager_id = COMP_MANAGER_ID
+    node.hardware_type = params.sdr_nodetype
+
+    if params.sdr_compute_image:
+        node.disk_image = params.sdr_compute_image
+    else:
+        node.disk_image = SRSLTE_IMG
+
+    node_radio_if = node.addInterface("usrp_if")
+    node_radio_if.addAddress(rspec.IPv4Address("192.168.40.1",
+                                               "255.255.255.0"))
+
+    radio_link = request.Link("radio-link-{}".format(idx))
+    radio_link.bandwidth = 10*1000*1000
+    radio_link.addInterface(node_radio_if)
+
+    radio = request.RawPC(x310_radio.component_id)
+    radio.component_id = x310_radio.component_id
+    radio.component_manager_id = COMP_MANAGER_ID
+    radio_link.addNode(radio)
+
+    nodeb_cn_if = node.addInterface("nodeb-cn-if")
+    nodeb_cn_if.addAddress(rspec.IPv4Address("192.168.1.{}".format(idx + 2), "255.255.255.0"))
+    cn_link.addInterface(nodeb_cn_if)
+
+    if params.oai_ran_commit_hash:
+        oai_ran_hash = params.oai_ran_commit_hash
+    else:
+        oai_ran_hash = DEFAULT_NR_RAN_HASH
+
+    cmd = '{} "{}" {}'.format(OAI_DEPLOY_SCRIPT, oai_ran_hash, role)
+    node.addService(rspec.Execute(shell="bash", command=cmd))
+    node.addService(rspec.Execute(shell="bash", command="/local/repository/bin/tune-cpu.sh"))
+    node.addService(rspec.Execute(shell="bash", command="/local/repository/bin/tune-sdr-iface.sh"))
+
+def b210_nuc_pair(b210_node):
+    node = request.RawPC(b210_node.component_id)
+    node.component_manager_id = COMP_MANAGER_ID
+    node.component_id = b210_node.component_id
+    node.disk_image = COTS_UE_IMG
+    node.addService(rspec.Execute(shell="bash", command="/local/repository/bin/module-off.sh"))
+
+pc = portal.Context()
+
+node_types = [
+    ("d430", "Emulab, d430"),
+    ("d740", "Emulab, d740"),
+]
+pc.defineParameter(
+    name="sdr_nodetype",
+    description="Type of compute node paired with the SDRs",
+    typ=portal.ParameterType.STRING,
+    defaultValue=node_types[1],
+    legalValues=node_types
+)
+
+pc.defineParameter(
+    name="cn_nodetype",
+    description="Type of compute node to use for CN node (if included)",
+    typ=portal.ParameterType.STRING,
+    defaultValue=node_types[0],
+    legalValues=node_types
+)
+
+pc.defineParameter(
+    name="oai_ran_commit_hash",
+    description="Commit hash for OAI RAN",
+    typ=portal.ParameterType.STRING,
+    defaultValue="",
+    advanced=True
+)
+
+pc.defineParameter(
+    name="oai_cn_commit_hash",
+    description="Commit hash for OAI (5G)CN",
+    typ=portal.ParameterType.STRING,
+    defaultValue="",
+    advanced=True
+)
+
+pc.defineParameter(
+    name="sdr_compute_image",
+    description="Image to use for compute connected to SDRs",
+    typ=portal.ParameterType.STRING,
+    defaultValue="",
+    advanced=True
+)
+
+indoor_ota_x310s = [
+    ("ota-x310-1",
+     "USRP X310 #1"),
+    ("ota-x310-2",
+     "USRP X310 #2"),
+    ("ota-x310-3",
+     "USRP X310 #3"),
+    ("ota-x310-4",
+     "USRP X310 #4"),
+]
+pc.defineStructParameter("x310_radios", "X310 Radios", [],
+                         multiValue=False,
+                         itemDefaultValue={},
+                         min=0, max=None,
+                         members=[
+                             portal.Parameter(
+                                 "component_id",
+                                 "Indoor OTA X310",
+                                 portal.ParameterType.STRING,
+                                 indoor_ota_x310s[0],
+                                 indoor_ota_x310s)
+                         ])
+
+indoor_ota_nucs = [
+    ("ota-nuc1",
+     "nuc1 w/B210"),
+    ("ota-nuc2",
+     "nuc2 w/B210"),
+    ("ota-nuc3",
+     "nuc3 w/B210"),
+    ("ota-nuc4",
+     "nuc4 w/B210"),
+]
+
+pc.defineStructParameter("b210_nodes", "B210 Radios", [],
+                         multiValue=True,
+                         min=0, max=None,
+                         members=[
+                             portal.Parameter(
+                                 "component_id",
+                                 "NUC compute w/ B210",
+                                 portal.ParameterType.STRING,
+                                 indoor_ota_nucs[0],
+                                 indoor_ota_nucs)
+                         ],
+                         )
+
+params = pc.bindParameters()
+pc.verifyParameters()
+request = pc.makeRequestRSpec()
+
+role = "cn"
+cn_node = request.RawPC(role)
+cn_node.component_manager_id = COMP_MANAGER_ID
+cn_node.hardware_type = params.cn_nodetype
+cn_node.disk_image = UBUNTU_IMG
+cn_if = cn_node.addInterface("cn-if")
+cn_if.addAddress(rspec.IPv4Address("192.168.1.1", "255.255.255.0"))
+cn_link = request.Link("cn-link")
+cn_link.bandwidth = 10*1000*1000
+cn_link.addInterface(cn_if)
+
+if params.oai_cn_commit_hash:
+    oai_cn_hash = params.oai_cn_commit_hash
+else:
+    oai_cn_hash = DEFAULT_NR_CN_HASH
+
+cmd = '{} "{}" {}'.format(OAI_DEPLOY_SCRIPT, oai_cn_hash, role)
+cn_node.addService(rspec.Execute(shell="bash", command=cmd))
+
+for i, x310_radio in enumerate(params.x310_radios):
+    x310_node_pair(i, x310_radio)
+
+for b210_node in params.b210_nodes:
+    b210_nuc_pair(b210_node)
+
+tour = IG.Tour()
+tour.Description(IG.Tour.MARKDOWN, tourDescription)
+tour.Instructions(IG.Tour.MARKDOWN, tourInstructions)
+request.addTour(tour)
+
+pc.printRequestRSpec(request)
