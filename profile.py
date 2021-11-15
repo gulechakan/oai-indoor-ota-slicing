@@ -28,13 +28,20 @@ Diagram](https://gitlab.flux.utah.edu/powderrenewpublic/powder-deployment/-/raw/
 
 The following will be deployed:
 
-- Server-class compute node with a Docker-based OAI 5G Core Network
-- Server-class compute node with OAI 5G gNodeB (fiber connection to 5GCN and X310)
-- One or more Intel NUC compute nodes with a 5G module and supporting tools
+- Server-class compute node (d430) with a Docker-based OAI 5G Core Network
+- Server-class compute node (d740) with OAI 5G gNodeB (fiber connection to 5GCN and an X310)
+- Four Intel NUC compute nodes, each with a 5G module and supporting tools
 
-Note: this profile currently requires use of the 3599-3640 MHz spectrum range.
-This range will be requested by the profile unless you specify otherwise during
-the parameterization step while instantiating this profile.
+Note: This profile currently requires the use of the 3599-3640 MHz spectrum
+range. You need an approved reservation for this spectrum in order to use this
+profile. It's also strongly recommended that you include the following necessary
+resources in your reservation to gaurantee their availability at the time of
+your experiment:
+
+- A d430 compute node to host the core network
+- A d740 compute node for the gNodeB
+- One of the four indoor OTA X310s
+- All four indoor OTA NUCs
 
 #### Bleeding-edge Software Caveats!
 
@@ -254,42 +261,13 @@ indoor_ota_x310s = [
     ("ota-x310-4",
      "USRP X310 #4"),
 ]
-pc.defineStructParameter("x310_radios", "X310 Radios (for OAI gNodeB)", [],
-                         multiValue=True,
-                         itemDefaultValue={},
-                         min=0, max=1,
-                         members=[
-                             portal.Parameter(
-                                 "component_id",
-                                 "Indoor OTA X310",
-                                 portal.ParameterType.STRING,
-                                 indoor_ota_x310s[0],
-                                 indoor_ota_x310s)
-                         ])
-
-indoor_ota_nucs = [
-    ("ota-nuc1",
-     "nuc1 w/ Quectel UE"),
-    ("ota-nuc2",
-     "nuc2 w/ Quectel UE"),
-    ("ota-nuc3",
-     "nuc3 w/ Quectel UE"),
-    ("ota-nuc4",
-     "nuc4 w/ Quectel UE"),
-]
-
-pc.defineStructParameter("b210_nodes", "COTS UE Nodes", [],
-                         multiValue=True,
-                         min=0, max=None,
-                         members=[
-                             portal.Parameter(
-                                 "component_id",
-                                 "NUC compute w/ Quectel RM500Q UE",
-                                 portal.ParameterType.STRING,
-                                 indoor_ota_nucs[0],
-                                 indoor_ota_nucs)
-                         ],
-                         )
+pc.defineParameter(
+    name="x310_radio",
+    description="X310 Radio (for OAI gNodeB)",
+    typ=portal.ParameterType.STRING,
+    defaultValue=indoor_ota_x310s[0],
+    legalValues=indoor_ota_x310s
+)
 
 portal.context.defineStructParameter(
     "freq_ranges", "Frequency Ranges To Transmit In",
@@ -338,11 +316,12 @@ else:
 cmd = '{} "{}" {}'.format(OAI_DEPLOY_SCRIPT, oai_cn_hash, role)
 cn_node.addService(rspec.Execute(shell="bash", command=cmd))
 
-for i, x310_radio in enumerate(params.x310_radios):
-    x310_node_pair(i, x310_radio)
+# sindle x310 for now
+x310_node_pair(0, {"component_id": params.x310_radio})
 
-for b210_node in params.b210_nodes:
-    b210_nuc_pair(b210_node)
+# require all indoor OTA nucs for now
+for b210_node in ["ota-nuc1", "ota-nuc2", "ota-nuc3", "ota-nuc4"]:
+    b210_nuc_pair({"component_id": b210_node})
 
 for frange in params.freq_ranges:
     request.requestSpectrum(frange.freq_min, frange.freq_max, 0)
