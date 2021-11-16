@@ -33,8 +33,8 @@ The following will be deployed:
 - Four Intel NUC compute nodes, each with a 5G module and supporting tools
 
 Note: This profile currently requires the use of the 3599-3640 MHz spectrum
-range. You need an approved reservation for this spectrum in order to use this
-profile. It's also strongly recommended that you include the following necessary
+range and you need an approved reservation for this spectrum in order to use it.
+It's also strongly recommended that you include the following necessary
 resources in your reservation to gaurantee their availability at the time of
 your experiment:
 
@@ -48,9 +48,9 @@ your experiment:
 The OAI 5G RAN components are a work-in-progress at the time of writing this. In
 fact, this profile currently targets a feature branch that has yet to be merged
 into the mainline OAI develop branch. You are likely to see warnings, errors,
-crashes, etc, when running the OAI gNodeB soft modem. Please subscribe to the
-OAI user or developer mailing lists to monitor and ask questions about the
-current status of OAI 5G:
+crashes, etc, when running the OAI gNodeB soft modem. The COTS modules may
+sometimes fail to attach. Please subscribe to the OAI user or developer mailing
+lists to monitor and ask questions about the current status of OAI 5G:
 https://gitlab.eurecom.fr/oai/openairinterface5g/-/wikis/MailingList.
 
 """
@@ -136,16 +136,25 @@ ping 192.168.70.135
 sudo docker exec -it oai-ext-dn ping <IP address from quectel-CM>
 ```
 
-Known Issues:
+This process may be repeated on the indoor OTA NUCs in order to attach multiple
+modules to the network.
 
-- The gNodeB soft modem may spam warnings/errors about missed DCI or
-  ULSCH detections. It may crash unexpectedly.
+Known Issues and Workarounds:
+
+- The oai-amf may not list all registered UEs in the assoicated log.
+- The gNodeB soft modem may spam warnings/errors about missed DCI or ULSCH
+  detections. It may crash unexpectedly.
 - Exiting the gNodeB soft modem with ctrl-c will often leave the SDR in a funny
   state, so that the next time you start it, it may crash with a UHD error. If
   this happens, simply start it again.
 - The module may not attach to the network or pick up an IP address on the first
-  try. If that happens, put the module into airplane mode with `sudo modemctl
-  airplane-mode`, restart quectel-CM, then bring the module back online.
+  try. If so, put the module into airplane mode with `sudo modemctl
+  airplane-mode`, kill and restart quectel-CM, then bring the module back
+  online. If the module still fails to associate and/or pick up an IP, try
+  putting the module into airplane mode, rebooting the associated NUC, and
+  bringing the module back online again.
+- The modemctl tool may return an error for some commands. If so, just run the
+  command again.
 
 """
 
