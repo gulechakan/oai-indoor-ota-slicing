@@ -171,7 +171,7 @@ OAI_DEPLOY_SCRIPT = os.path.join(BIN_PATH, "deploy-oai.sh")
 
 def x310_node_pair(idx, x310_radio):
     role = "nodeb"
-    node = request.RawPC("{}-comp".format(x310_radio))
+    node = request.RawPC("{}-gnb-comp".format(x310_radio))
     node.component_manager_id = COMP_MANAGER_ID
     node.hardware_type = params.sdr_nodetype
 
@@ -188,7 +188,7 @@ def x310_node_pair(idx, x310_radio):
     radio_link.bandwidth = 10*1000*1000
     radio_link.addInterface(node_radio_if)
 
-    radio = request.RawPC(x310_radio)
+    radio = request.RawPC("{}-gnb-sdr".format(x310_radio))
     radio.component_id = x310_radio
     radio.component_manager_id = COMP_MANAGER_ID
     radio_link.addNode(radio)
@@ -208,7 +208,7 @@ def x310_node_pair(idx, x310_radio):
     node.addService(rspec.Execute(shell="bash", command="/local/repository/bin/tune-sdr-iface.sh"))
 
 def b210_nuc_pair(b210_node):
-    node = request.RawPC(b210_node)
+    node = request.RawPC("{}-cots-ue".format(b210_node))
     node.component_manager_id = COMP_MANAGER_ID
     node.component_id = b210_node
     node.disk_image = COTS_UE_IMG
@@ -307,7 +307,7 @@ pc.verifyParameters()
 request = pc.makeRequestRSpec()
 
 role = "cn"
-cn_node = request.RawPC(role)
+cn_node = request.RawPC("cn5g-docker-host")
 cn_node.component_manager_id = COMP_MANAGER_ID
 cn_node.hardware_type = params.cn_nodetype
 cn_node.disk_image = UBUNTU_IMG
@@ -325,7 +325,7 @@ else:
 cmd = '{} "{}" {}'.format(OAI_DEPLOY_SCRIPT, oai_cn_hash, role)
 cn_node.addService(rspec.Execute(shell="bash", command=cmd))
 
-# sindle x310 for now
+# single x310 for now
 x310_node_pair(0, params.x310_radio)
 
 # require all indoor OTA nucs for now
