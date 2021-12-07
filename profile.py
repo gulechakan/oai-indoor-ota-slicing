@@ -160,7 +160,7 @@ Known Issues and Workarounds:
 
 BIN_PATH = "/local/repository/bin"
 ETC_PATH = "/local/repository/etc"
-SRSLTE_IMG = "urn:publicid:IDN+emulab.net+image+PowderTeam:U18LL-SRSLTE"
+LOWLAT_IMG = "urn:publicid:IDN+emulab.net+image+PowderTeam:U18LL-SRSLTE"
 UBUNTU_IMG = "urn:publicid:IDN+emulab.net+image+emulab-ops//UBUNTU18-64-STD"
 COTS_UE_IMG = "urn:publicid:IDN+emulab.net+image+PowderTeam:cots-base-image"
 COMP_MANAGER_ID = "urn:publicid:IDN+emulab.net+authority+cm"
@@ -178,7 +178,7 @@ def x310_node_pair(idx, x310_radio):
     if params.sdr_compute_image:
         node.disk_image = params.sdr_compute_image
     else:
-        node.disk_image = SRSLTE_IMG
+        node.disk_image = LOWLAT_IMG
 
     node_radio_if = node.addInterface("usrp_if")
     node_radio_if.addAddress(rspec.IPv4Address("192.168.40.1",
