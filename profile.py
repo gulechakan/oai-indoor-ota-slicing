@@ -202,7 +202,7 @@ def x310_node_pair(idx, x310_radio):
     else:
         oai_ran_hash = DEFAULT_NR_RAN_HASH
 
-    cmd = '{} \"{}\" {}'.format(OAI_DEPLOY_SCRIPT, oai_ran_hash, role)
+    cmd = '{} {} {}'.format(OAI_DEPLOY_SCRIPT, oai_ran_hash, role)
     node.addService(rspec.Execute(shell="bash", command=cmd))
     node.addService(rspec.Execute(shell="bash", command="/local/repository/bin/tune-cpu.sh"))
     node.addService(rspec.Execute(shell="bash", command="/local/repository/bin/tune-sdr-iface.sh"))
@@ -322,7 +322,7 @@ if params.oai_cn_commit_hash:
 else:
     oai_cn_hash = DEFAULT_NR_CN_HASH
 
-cmd = '{} \"{}\" {}'.format(OAI_DEPLOY_SCRIPT, oai_cn_hash, role)
+cmd = '{} {} {}'.format(OAI_DEPLOY_SCRIPT, oai_cn_hash, role)
 cn_node.addService(rspec.Execute(shell="bash", command=cmd))
 
 # single x310 for now
