@@ -164,6 +164,8 @@ LOWLAT_IMG = "urn:publicid:IDN+emulab.net+image+PowderTeam:U18LL-SRSLTE"
 UBUNTU_IMG = "urn:publicid:IDN+emulab.net+image+emulab-ops//UBUNTU18-64-STD"
 COTS_UE_IMG = "urn:publicid:IDN+emulab.net+image+PowderTeam:cots-base-image"
 COMP_MANAGER_ID = "urn:publicid:IDN+emulab.net+authority+cm"
+# old hash from branch bandwidth-testing-abs-sr-bsr-multiple_ue
+#TODO: check if merged to develop or develop now supports multiple UEs
 DEFAULT_NR_RAN_HASH = "8082394371e5abcec8a7ab4cf501d79df6acd3e5"
 DEFAULT_NR_CN_HASH = "v1.2.1"
 OAI_DEPLOY_SCRIPT = os.path.join(BIN_PATH, "deploy-oai.sh")
@@ -280,7 +282,7 @@ pc.defineParameter(
 
 portal.context.defineStructParameter(
     "freq_ranges", "Frequency Ranges To Transmit In",
-    defaultValue=[{"freq_min": 3599.0, "freq_max": 3640.0}],
+    defaultValue=[{"freq_min": 3550.0, "freq_max": 3600.0}],
     multiValue=True,
     min=0,
     multiValueTitle="Frequency ranges to be used for transmission.",
@@ -289,14 +291,14 @@ portal.context.defineStructParameter(
             "freq_min",
             "Frequency Range Min",
             portal.ParameterType.BANDWIDTH,
-            3599.0,
+            3550.0,
             longDescription="Values are rounded to the nearest kilohertz."
         ),
         portal.Parameter(
             "freq_max",
             "Frequency Range Max",
             portal.ParameterType.BANDWIDTH,
-            3640.0,
+            3600.0,
             longDescription="Values are rounded to the nearest kilohertz."
         ),
     ]
