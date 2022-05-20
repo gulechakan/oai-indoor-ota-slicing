@@ -32,7 +32,7 @@ The following will be deployed:
 - Server-class compute node (d740) with OAI 5G gNodeB (fiber connection to 5GCN and an X310)
 - Four Intel NUC compute nodes, each with a 5G module and supporting tools
 
-Note: This profile currently requires the use of the 3599-3640 MHz spectrum
+Note: This profile currently requires the use of the 3550-3600 MHz spectrum
 range and you need an approved reservation for this spectrum in order to use it.
 It's also strongly recommended that you include the following necessary
 resources in your reservation to gaurantee their availability at the time of
