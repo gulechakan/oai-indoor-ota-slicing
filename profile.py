@@ -116,16 +116,6 @@ The UE should attach to the network and pick up an IP address on the wwan
 interface associated with the module. You'll see the wwan interface name and the
 IP address in the stdout of the quectel-CM process.
 
-After the UE associates, open another session and configure the wwan interface
-with the appropriate IP address and add the following route via that interface.
-
-```
-# configure IP and add route
-sudo ifconfig <wwan iface name from quectel-CM> <IP address from quectel-CM>
-sudo route add -net 192.168.70.0/24 dev <wwan iface name from quectel-CM>
-
-```
-
 You should now be able to generate traffic in either direction:
 
 ```
