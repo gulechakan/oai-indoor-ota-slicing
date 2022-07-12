@@ -111,14 +111,10 @@ function setup_ran_node {
     cd oairan
     git checkout $COMMIT_HASH
 
-    if [ $COMMIT_HASH == "efc696cce989d7434604cacc1a77790f5fdda70c" ]; then
-      git apply /local/repository/etc/oai/gnb_drb_and_ue_stall.patch
-    fi
-
     source oaienv
     cd cmake_targets
     ./build_oai -I
-    ./build_oai -w USRP --build-lib all $BUILD_ARGS
+    ./build_oai -w USRP --build-lib all $BUILD_ARGS --ninja
     echo cloning and building oai ran... done.
 }
 

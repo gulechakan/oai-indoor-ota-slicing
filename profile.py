@@ -57,7 +57,7 @@ https://gitlab.eurecom.fr/oai/openairinterface5g/-/wikis/MailingList.
 
 tourInstructions = """
 
-Startup scripts will still be running when after your experiment becomes ready.
+Startup scripts will still be running when your experiment becomes ready.
 Watch the "Startup" column on the "List View" tab for your experiment and wait
 until all of the compute nodes show "Finished" before proceeding.
 
@@ -166,7 +166,7 @@ COTS_UE_IMG = "urn:publicid:IDN+emulab.net+image+PowderTeam:cots-base-image"
 COMP_MANAGER_ID = "urn:publicid:IDN+emulab.net+authority+cm"
 # old hash from branch bandwidth-testing-abs-sr-bsr-multiple_ue
 #TODO: check if merged to develop or develop now supports multiple UEs
-DEFAULT_NR_RAN_HASH = "8082394371e5abcec8a7ab4cf501d79df6acd3e5"
+DEFAULT_NR_RAN_HASH = "509168255153690397626d85cdd4c4aec0859620" # 2022.wk26
 DEFAULT_NR_CN_HASH = "v1.2.1"
 OAI_DEPLOY_SCRIPT = os.path.join(BIN_PATH, "deploy-oai.sh")
 
