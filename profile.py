@@ -10,7 +10,7 @@ import geni.rspec.emulab.spectrum as spectrum
 
 
 tourDescription = """
-## OAI 5G using the POWDER Indoor OTA Lab
+### OAI 5G using the POWDER Indoor OTA Lab
 
 This profile instantiates an experiment for testing OAI 5G with COTS UEs in
 standalone mode using resources in the POWDER indoor over-the-air (OTA) lab.
