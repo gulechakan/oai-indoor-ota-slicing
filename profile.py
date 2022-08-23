@@ -45,12 +45,10 @@ your experiment:
 
 #### Bleeding-edge Software Caveats!
 
-The OAI 5G RAN components are a work-in-progress at the time of writing this. In
-fact, this profile currently targets a feature branch that has yet to be merged
-into the mainline OAI develop branch. You are likely to see warnings, errors,
-crashes, etc, when running the OAI gNodeB soft modem. The COTS modules may
-sometimes fail to attach. Please subscribe to the OAI user or developer mailing
-lists to monitor and ask questions about the current status of OAI 5G:
+You may see warnings, errors, crashes, etc, when running the OAI gNodeB soft
+modem. The COTS modules may sometimes fail to attach. Please subscribe to the
+OAI user or developer mailing lists to monitor and ask questions about the
+current status of OAI 5G:
 https://gitlab.eurecom.fr/oai/openairinterface5g/-/wikis/MailingList.
 
 """
