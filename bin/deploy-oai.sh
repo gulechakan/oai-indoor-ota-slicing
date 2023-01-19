@@ -113,7 +113,7 @@ function setup_ran_node {
 
     source oaienv
     cd cmake_targets
-    ./build_oai -I
+    ./build_oai -I --ninja
     ./build_oai -w USRP --build-lib all $BUILD_ARGS --ninja
     echo cloning and building oai ran... done.
 }
