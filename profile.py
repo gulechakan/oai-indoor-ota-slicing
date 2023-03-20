@@ -30,7 +30,7 @@ The following will be deployed:
 
 - Server-class compute node (d430) with a Docker-based OAI 5G Core Network
 - Server-class compute node (d740) with OAI 5G gNodeB (fiber connection to 5GCN and an X310)
-- Four Intel NUC compute nodes, each with a 5G module and supporting tools
+- One to four Intel NUC compute nodes, each with a 5G module and supporting tools
 
 Note: This profile currently requires the use of the 3550-3600 MHz spectrum
 range and you need an approved reservation for this spectrum in order to use it.
@@ -268,6 +268,17 @@ pc.defineParameter(
     legalValues=indoor_ota_x310s
 )
 
+indoor_ota_nucs = [
+    ("ota-nuc%d" % (i,), "Indoor OTA nuc#%d with B210" % (i,)) for i in range(1, 5) ]
+pc.defineStructParameter(
+    "b210_nodes", "Indoor OTA Nuc with B210",
+    [ { "node_id": "ota-nuc1" } ],
+    multiValue=True, min=1, max=len(indoor_ota_nucs),
+    members=[
+        portal.Parameter(
+            "node_id", "Indoor OTA Nuc", portal.ParameterType.STRING,
+            indoor_ota_nucs[0], indoor_ota_nucs)])
+
 portal.context.defineStructParameter(
     "freq_ranges", "Frequency Ranges To Transmit In",
     defaultValue=[{"freq_min": 3550.0, "freq_max": 3600.0}],
@@ -319,8 +330,8 @@ cn_node.addService(rspec.Execute(shell="bash", command=cmd))
 x310_node_pair(0, params.x310_radio)
 
 # require all indoor OTA nucs for now
-for b210_node in ["ota-nuc1", "ota-nuc2", "ota-nuc3", "ota-nuc4"]:
-    b210_nuc_pair(b210_node)
+for b210_node in params.b210_nodes:
+    b210_nuc_pair(b210_node.node_id)
 
 for frange in params.freq_ranges:
     request.requestSpectrum(frange.freq_min, frange.freq_max, 0)
