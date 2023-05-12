@@ -90,8 +90,10 @@ sudo docker logs -f oai-amf
 On `nodeb`:
 
 ```
-sudo /var/tmp/oairan/cmake_targets/ran_build/build/nr-softmodem -E \
-  -O /var/tmp/etc/oai/gnb.sa.band78.fr1.106PRB.usrpx310.conf --sa
+sudo numactl --membind=0 --cpubind=0 \
+  /var/tmp/oairan/cmake_targets/ran_build/build/nr-softmodem -E \
+  -O /var/tmp/etc/oai/gnb.sa.band78.fr1.106PRB.usrpx310.conf --sa \
+  --MACRLCs.[0].dl_max_mcs 28 --tune-offset 23040000 -d
 ```
 
 On `ota-nucX`:
@@ -100,7 +102,7 @@ After you've started the gNodeB, you can bring the COTS UE online. First, start
 the Quectel connection manager:
 
 ```
-sudo quectel-CM -s oai -4
+sudo quectel-CM -s oai.ipv4 -4
 ```
 
 In another session on the same node, bring the UE online:
@@ -154,8 +156,8 @@ COTS_UE_IMG = "urn:publicid:IDN+emulab.net+image+PowderTeam:cots-base-image"
 COMP_MANAGER_ID = "urn:publicid:IDN+emulab.net+authority+cm"
 # old hash from branch bandwidth-testing-abs-sr-bsr-multiple_ue
 #TODO: check if merged to develop or develop now supports multiple UEs
-DEFAULT_NR_RAN_HASH = "509168255153690397626d85cdd4c4aec0859620" # 2022.wk26
-DEFAULT_NR_CN_HASH = "v1.2.1"
+DEFAULT_NR_RAN_HASH = "9354a4523551b0321a8d11570822672696b0b5fd" # 2023.wk18b
+DEFAULT_NR_CN_HASH = "v1.5.0"
 OAI_DEPLOY_SCRIPT = os.path.join(BIN_PATH, "deploy-oai.sh")
 
 
