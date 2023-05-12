@@ -115,7 +115,6 @@ function setup_ran_node {
         libforms-bin \
         libuhd-dev \
         uhd-host \
-        libqt5charts5-dev \
         zlib1g \
         zlib1g-dev
     echo installing supporting packages... done.
@@ -132,7 +131,6 @@ function setup_ran_node {
     ./build_oai -I --ninja
     ./build_oai -w USRP \
         --build-lib telnetsrv \
-        --build-lib nrqtscope \
         --build-lib nrscope \
         $BUILD_ARGS --ninja
     echo cloning and building oai ran... done.
