@@ -77,7 +77,7 @@ services are healthy before moving on.
 
 ```
 cd /var/tmp/oai-cn5g-fed/docker-compose
-sudo python3 ./core-network.py --type start-mini --fqdn no --scenario 1
+sudo python3 ./core-network.py --type start-mini --scenario 1
 ```
 
 In yet another session, start following the logs for the AMF. This way you can
@@ -93,8 +93,11 @@ On `nodeb`:
 sudo numactl --membind=0 --cpubind=0 \
   /var/tmp/oairan/cmake_targets/ran_build/build/nr-softmodem -E \
   -O /var/tmp/etc/oai/gnb.sa.band78.fr1.106PRB.usrpx310.conf --sa \
-  --MACRLCs.[0].dl_max_mcs 28 --tune-offset 23040000 -d
+  --MACRLCs.[0].dl_max_mcs 28 --tune-offset 23040000
 ```
+
+Note: you can add the `-d` flag to the above command to enable the `nrcsope` if
+you have X-forwarding activated or you're using VNC.
 
 On `ota-nucX`:
 
@@ -156,7 +159,7 @@ COTS_UE_IMG = "urn:publicid:IDN+emulab.net+image+PowderTeam:cots-base-image"
 COMP_MANAGER_ID = "urn:publicid:IDN+emulab.net+authority+cm"
 # old hash from branch bandwidth-testing-abs-sr-bsr-multiple_ue
 #TODO: check if merged to develop or develop now supports multiple UEs
-DEFAULT_NR_RAN_HASH = "9354a4523551b0321a8d11570822672696b0b5fd" # 2023.wk18b
+DEFAULT_NR_RAN_HASH = "1268b27c91be3a568dd352f2e9a21b3963c97432" # 2023.wk18b
 DEFAULT_NR_CN_HASH = "v1.5.0"
 OAI_DEPLOY_SCRIPT = os.path.join(BIN_PATH, "deploy-oai.sh")
 
@@ -195,9 +198,9 @@ def x310_node_pair(idx, x310_radio):
         oai_ran_hash = DEFAULT_NR_RAN_HASH
 
     cmd = "{} '{}' {}".format(OAI_DEPLOY_SCRIPT, oai_ran_hash, role)
-    # node.addService(rspec.Execute(shell="bash", command=cmd))
-    # node.addService(rspec.Execute(shell="bash", command="/local/repository/bin/tune-cpu.sh"))
-    # node.addService(rspec.Execute(shell="bash", command="/local/repository/bin/tune-sdr-iface.sh"))
+    node.addService(rspec.Execute(shell="bash", command=cmd))
+    node.addService(rspec.Execute(shell="bash", command="/local/repository/bin/tune-cpu.sh"))
+    node.addService(rspec.Execute(shell="bash", command="/local/repository/bin/tune-sdr-iface.sh"))
 
 def b210_nuc_pair(b210_node):
     node = request.RawPC("{}-cots-ue".format(b210_node))
@@ -314,8 +317,8 @@ if params.oai_cn_commit_hash:
 else:
     oai_cn_hash = DEFAULT_NR_CN_HASH
 
-# cmd = "{} '{}' {}".format(OAI_DEPLOY_SCRIPT, oai_cn_hash, role)
-# cn_node.addService(rspec.Execute(shell="bash", command=cmd))
+cmd = "{} '{}' {}".format(OAI_DEPLOY_SCRIPT, oai_cn_hash, role)
+cn_node.addService(rspec.Execute(shell="bash", command=cmd))
 
 # single x310 for now
 x310_node_pair(0, params.x310_radio)

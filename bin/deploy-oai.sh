@@ -24,7 +24,7 @@ fi
 function setup_cn_node {
     # Install docker, docker compose, wireshark/tshark
     echo setting up cn node
-    CN_TAG="v1.5.0"
+    COMMIT_HASH=$1
     sudo apt-get update && sudo apt-get install -y \
       apt-transport-https \
       ca-certificates \
@@ -71,17 +71,17 @@ function setup_cn_node {
     echo pulling cn5g images...
     sudo docker pull ubuntu:bionic
     sudo docker pull mysql:8.0
-    sudo docker pull oaisoftwarealliance/oai-amf:$CN_TAG
-    sudo docker pull oaisoftwarealliance/oai-nrf:$CN_TAG
-    sudo docker pull oaisoftwarealliance/oai-spgwu-tiny:$CN_TAG
-    sudo docker pull oaisoftwarealliance/oai-smf:$CN_TAG
-    sudo docker pull oaisoftwarealliance/oai-udr:$CN_TAG
-    sudo docker pull oaisoftwarealliance/oai-udm:$CN_TAG
-    sudo docker pull oaisoftwarealliance/oai-ausf:$CN_TAG
-    sudo docker pull oaisoftwarealliance/oai-upf-vpp:$CN_TAG
-    sudo docker pull oaisoftwarealliance/oai-nssf:$CN_TAG
-    sudo docker pull oaisoftwarealliance/oai-pcf:$CN_TAG
-    sudo docker pull oaisoftwarealliance/oai-nef:$CN_TAG
+    sudo docker pull oaisoftwarealliance/oai-amf:$COMMIT_HASH
+    sudo docker pull oaisoftwarealliance/oai-nrf:$COMMIT_HASH
+    sudo docker pull oaisoftwarealliance/oai-spgwu-tiny:$COMMIT_HASH
+    sudo docker pull oaisoftwarealliance/oai-smf:$COMMIT_HASH
+    sudo docker pull oaisoftwarealliance/oai-udr:$COMMIT_HASH
+    sudo docker pull oaisoftwarealliance/oai-udm:$COMMIT_HASH
+    sudo docker pull oaisoftwarealliance/oai-ausf:$COMMIT_HASH
+    sudo docker pull oaisoftwarealliance/oai-upf-vpp:$COMMIT_HASH
+    sudo docker pull oaisoftwarealliance/oai-nssf:$COMMIT_HASH
+    sudo docker pull oaisoftwarealliance/oai-pcf:$COMMIT_HASH
+    sudo docker pull oaisoftwarealliance/oai-nef:$COMMIT_HASH
     sudo docker pull oaisoftwarealliance/trf-gen-cn5g:latest
 
     echo pulling cn5g images... done.
@@ -91,9 +91,9 @@ function setup_cn_node {
 
     echo cloning and syncing oai-cn5g-fed...
     cd $SRCDIR
-    git clone --branch $CN_TAG $OAI_CN5G_REPO oai-cn5g-fed
+    git clone --branch $COMMIT_HASH $OAI_CN5G_REPO oai-cn5g-fed
     cd oai-cn5g-fed
-    git checkout -f $CN_TAG
+    git checkout -f $COMMIT_HASH
     ./scripts/syncComponents.sh
     echo cloning and syncing oai-cn5g-fed... done.
 
