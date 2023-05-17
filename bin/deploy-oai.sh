@@ -24,7 +24,6 @@ fi
 function setup_cn_node {
     # Install docker, docker compose, wireshark/tshark
     echo setting up cn node
-    COMMIT_HASH=$1
     sudo apt-get update && sudo apt-get install -y \
       apt-transport-https \
       ca-certificates \
@@ -114,6 +113,7 @@ function setup_ran_node {
         libforms-dev \
         libforms-bin \
         libuhd-dev \
+        numactl \
         uhd-host \
         zlib1g \
         zlib1g-dev
