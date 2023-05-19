@@ -7,7 +7,7 @@ services:
             - ./database/oai_db1.sql:/docker-entrypoint-initdb.d/oai_db.sql
             - ./healthscripts/mysql-healthcheck1.sh:/tmp/mysql-healthcheck.sh
         environment:
-            - TZ=Europe/Paris
+            - TZ=America/Boise
             - MYSQL_DATABASE=oai_db
             - MYSQL_USER=test
             - MYSQL_PASSWORD=test
@@ -24,7 +24,7 @@ services:
         container_name: "oai-nrf"
         image: oaisoftwarealliance/oai-nrf:v1.5.0
         environment:
-            - TZ=Europe/Paris
+            - TZ=America/Boise
             - NRF_INTERFACE_NAME_FOR_SBI=eth0
         networks:
             public_net:
@@ -90,7 +90,7 @@ services:
             - TZ=America/Boise
             - SMF_INTERFACE_NAME_FOR_N4=eth0
             - SMF_INTERFACE_NAME_FOR_SBI=eth0
-            - DEFAULT_DNS_IPV4_ADDRESS=192.168.1.1
+            - DEFAULT_DNS_IPV4_ADDRESS=8.8.8.8
             - DEFAULT_DNS_SEC_IPV4_ADDRESS=8.8.8.8
             - AMF_IPV4_ADDRESS=192.168.70.132
             - AMF_FQDN=oai-amf
