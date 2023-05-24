@@ -37,7 +37,7 @@ function setup_cn_node {
         sleep 2
     done
 
-    sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+    sudo add-apt-repository -y "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
     sudo add-apt-repository -y ppa:wireshark-dev/stable
     echo "wireshark-common wireshark-common/install-setuid boolean false" | sudo debconf-set-selections
 
@@ -69,22 +69,20 @@ function setup_cn_node {
 
     echo pulling cn5g images...
     sudo docker pull ubuntu:bionic
-    sudo docker pull mysql:5.7
-    sudo docker pull rdefosseoai/oai-amf:v1.2.1
-    sudo docker pull rdefosseoai/oai-nrf:v1.2.1
-    sudo docker pull rdefosseoai/oai-spgwu-tiny:v1.1.4
-    sudo docker pull rdefosseoai/oai-smf:v1.2.1
-    sudo docker pull rdefosseoai/oai-udr:v1.2.1
-    sudo docker pull rdefosseoai/oai-udm:v1.2.1
-    sudo docker pull rdefosseoai/oai-ausf:v1.2.1
+    sudo docker pull mysql:8.0
+    sudo docker pull oaisoftwarealliance/oai-amf:$COMMIT_HASH
+    sudo docker pull oaisoftwarealliance/oai-nrf:$COMMIT_HASH
+    sudo docker pull oaisoftwarealliance/oai-spgwu-tiny:$COMMIT_HASH
+    sudo docker pull oaisoftwarealliance/oai-smf:$COMMIT_HASH
+    sudo docker pull oaisoftwarealliance/oai-udr:$COMMIT_HASH
+    sudo docker pull oaisoftwarealliance/oai-udm:$COMMIT_HASH
+    sudo docker pull oaisoftwarealliance/oai-ausf:$COMMIT_HASH
+    sudo docker pull oaisoftwarealliance/oai-upf-vpp:$COMMIT_HASH
+    sudo docker pull oaisoftwarealliance/oai-nssf:$COMMIT_HASH
+    sudo docker pull oaisoftwarealliance/oai-pcf:$COMMIT_HASH
+    sudo docker pull oaisoftwarealliance/oai-nef:$COMMIT_HASH
+    sudo docker pull oaisoftwarealliance/trf-gen-cn5g:latest
 
-    sudo docker image tag rdefosseoai/oai-amf:v1.2.1 oai-amf:latest
-    sudo docker image tag rdefosseoai/oai-nrf:v1.2.1 oai-nrf:latest
-    sudo docker image tag rdefosseoai/oai-smf:v1.2.1 oai-smf:latest
-    sudo docker image tag rdefosseoai/oai-spgwu-tiny:v1.1.4 oai-spgwu-tiny:latest
-    sudo docker image tag rdefosseoai/oai-udr:v1.2.1 oai-udr:latest
-    sudo docker image tag rdefosseoai/oai-udm:v1.2.1 oai-udm:latest
-    sudo docker image tag rdefosseoai/oai-ausf:v1.2.1 oai-ausf:latest
     echo pulling cn5g images... done.
 
     sudo sysctl net.ipv4.conf.all.forwarding=1
@@ -92,19 +90,35 @@ function setup_cn_node {
 
     echo cloning and syncing oai-cn5g-fed...
     cd $SRCDIR
-    git clone $OAI_CN5G_REPO oai-cn5g-fed
+    git clone --branch $COMMIT_HASH $OAI_CN5G_REPO oai-cn5g-fed
     cd oai-cn5g-fed
-    git checkout $COMMIT_HASH
+    git checkout -f $COMMIT_HASH
     ./scripts/syncComponents.sh
     echo cloning and syncing oai-cn5g-fed... done.
+
     echo replacing a couple of configuration files
     cp /local/repository/etc/oai/docker-compose-mini-nrf.yaml /var/tmp/oai-cn5g-fed/docker-compose/docker-compose-mini-nrf.yaml
-    cp /local/repository/etc/oai/oai_db1.sql /var/tmp/oai-cn5g-fed/docker-compose/oai_db1.sql
+    cp /local/repository/etc/oai/oai_db1.sql /var/tmp/oai-cn5g-fed/docker-compose/database/oai_db1.sql
     echo setting up cn node... done.
 
 }
 
 function setup_ran_node {
+    # using `build-oai -I --install-optional-packages` results in interactive
+    # prompts, so...
+    echo installing supporting packages...
+    sudo add-apt-repository -y ppa:ettusresearch/uhd
+    sudo apt update && sudo apt install -y \
+        libboost-dev \
+        libforms-dev \
+        libforms-bin \
+        libuhd-dev \
+        numactl \
+        uhd-host \
+        zlib1g \
+        zlib1g-dev
+    echo installing supporting packages... done.
+
     echo cloning and building oai ran...
     cd $SRCDIR
     git clone $OAI_RAN_MIRROR oairan
@@ -113,8 +127,12 @@ function setup_ran_node {
 
     source oaienv
     cd cmake_targets
+
     ./build_oai -I --ninja
-    ./build_oai -w USRP --build-lib all $BUILD_ARGS --ninja
+    ./build_oai -w USRP \
+        --build-lib telnetsrv \
+        --build-lib nrscope \
+        $BUILD_ARGS --ninja
     echo cloning and building oai ran... done.
 }
 
@@ -122,9 +140,10 @@ function configure_nodeb {
     echo configuring nodeb...
     mkdir -p $SRCDIR/etc/oai
     cp -r $ETCDIR/oai/* $SRCDIR/etc/oai/
-    LANIF=`ip r | awk '/192\.168\.1\.2/{print $3}'`
+    LANIF=`ip r | awk '/192\.168\.1\.0/{print $3}'`
     if [ ! -z $LANIF ]; then
-      echo LAN IFACE is $LANIF.. updating nodeb config
+      LANIP=`ip r | awk '/192\.168\.1\.0/{print $NF}'`
+      echo LAN IFACE is $LANIF IP is $LANIP.. updating nodeb config
       find $SRCDIR/etc/oai/ -type f -exec sed -i "s/LANIF/$LANIF/" {} \;
       echo adding route to CN
       sudo ip route add 192.168.70.128/26 via 192.168.1.1 dev $LANIF

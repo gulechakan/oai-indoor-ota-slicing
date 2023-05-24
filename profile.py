@@ -77,7 +77,7 @@ services are healthy before moving on.
 
 ```
 cd /var/tmp/oai-cn5g-fed/docker-compose
-sudo python3 ./core-network.py --type start-mini --fqdn no --scenario 1
+sudo python3 ./core-network.py --type start-mini --scenario 1
 ```
 
 In yet another session, start following the logs for the AMF. This way you can
@@ -90,9 +90,14 @@ sudo docker logs -f oai-amf
 On `nodeb`:
 
 ```
-sudo /var/tmp/oairan/cmake_targets/ran_build/build/nr-softmodem -E \
-  -O /var/tmp/etc/oai/gnb.sa.band78.fr1.106PRB.usrpx310.conf --sa
+sudo numactl --membind=0 --cpubind=0 \
+  /var/tmp/oairan/cmake_targets/ran_build/build/nr-softmodem -E \
+  -O /var/tmp/etc/oai/gnb.sa.band78.fr1.106PRB.usrpx310.conf --sa \
+  --MACRLCs.[0].dl_max_mcs 28 --tune-offset 23040000
 ```
+
+Note: you can add the `-d` flag to the above command to enable the `nrcsope` if
+you have X-forwarding activated or you're using VNC.
 
 On `ota-nucX`:
 
@@ -100,7 +105,7 @@ After you've started the gNodeB, you can bring the COTS UE online. First, start
 the Quectel connection manager:
 
 ```
-sudo quectel-CM -s oai -4
+sudo quectel-CM -s oai.ipv4 -4
 ```
 
 In another session on the same node, bring the UE online:
@@ -149,13 +154,13 @@ Known Issues and Workarounds:
 BIN_PATH = "/local/repository/bin"
 ETC_PATH = "/local/repository/etc"
 LOWLAT_IMG = "urn:publicid:IDN+emulab.net+image+PowderTeam:U18LL-SRSLTE"
-UBUNTU_IMG = "urn:publicid:IDN+emulab.net+image+emulab-ops//UBUNTU18-64-STD"
+UBUNTU_IMG = "urn:publicid:IDN+emulab.net+image+emulab-ops//UBUNTU22-64-STD"
 COTS_UE_IMG = "urn:publicid:IDN+emulab.net+image+PowderTeam:cots-base-image"
 COMP_MANAGER_ID = "urn:publicid:IDN+emulab.net+authority+cm"
 # old hash from branch bandwidth-testing-abs-sr-bsr-multiple_ue
 #TODO: check if merged to develop or develop now supports multiple UEs
-DEFAULT_NR_RAN_HASH = "509168255153690397626d85cdd4c4aec0859620" # 2022.wk26
-DEFAULT_NR_CN_HASH = "v1.2.1"
+DEFAULT_NR_RAN_HASH = "1268b27c91be3a568dd352f2e9a21b3963c97432" # 2023.wk19
+DEFAULT_NR_CN_HASH = "v1.5.0"
 OAI_DEPLOY_SCRIPT = os.path.join(BIN_PATH, "deploy-oai.sh")
 
 
@@ -168,7 +173,7 @@ def x310_node_pair(idx, x310_radio):
     if params.sdr_compute_image:
         node.disk_image = params.sdr_compute_image
     else:
-        node.disk_image = LOWLAT_IMG
+        node.disk_image = UBUNTU_IMG
 
     node_radio_if = node.addInterface("usrp_if")
     node_radio_if.addAddress(rspec.IPv4Address("192.168.40.1",
@@ -269,14 +274,24 @@ pc.defineParameter(
 )
 
 indoor_ota_nucs = [
+<<<<<<< HEAD
     ("ota-nuc%d" % (i,), "Indoor OTA nuc#%d with B210" % (i,)) for i in range(1, 5) ]
 pc.defineStructParameter(
     "b210_nodes", "Indoor OTA Nuc with B210",
+=======
+    ("ota-nuc%d" % (i,), "Indoor OTA nuc#%d with B210 and COTS UE" % (i,)) for i in range(1, 5) ]
+pc.defineStructParameter(
+    "b210_nodes", "Indoor OTA NUC with B210 and COTS UE",
+>>>>>>> profile-update
     [ { "node_id": "ota-nuc1" } ],
     multiValue=True, min=1, max=len(indoor_ota_nucs),
     members=[
         portal.Parameter(
+<<<<<<< HEAD
             "node_id", "Indoor OTA Nuc", portal.ParameterType.STRING,
+=======
+            "node_id", "Indoor OTA NUC", portal.ParameterType.STRING,
+>>>>>>> profile-update
             indoor_ota_nucs[0], indoor_ota_nucs)])
 
 portal.context.defineStructParameter(
