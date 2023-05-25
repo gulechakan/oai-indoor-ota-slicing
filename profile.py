@@ -274,24 +274,14 @@ pc.defineParameter(
 )
 
 indoor_ota_nucs = [
-<<<<<<< HEAD
-    ("ota-nuc%d" % (i,), "Indoor OTA nuc#%d with B210" % (i,)) for i in range(1, 5) ]
-pc.defineStructParameter(
-    "b210_nodes", "Indoor OTA Nuc with B210",
-=======
     ("ota-nuc%d" % (i,), "Indoor OTA nuc#%d with B210 and COTS UE" % (i,)) for i in range(1, 5) ]
 pc.defineStructParameter(
     "b210_nodes", "Indoor OTA NUC with B210 and COTS UE",
->>>>>>> profile-update
     [ { "node_id": "ota-nuc1" } ],
     multiValue=True, min=1, max=len(indoor_ota_nucs),
     members=[
         portal.Parameter(
-<<<<<<< HEAD
-            "node_id", "Indoor OTA Nuc", portal.ParameterType.STRING,
-=======
             "node_id", "Indoor OTA NUC", portal.ParameterType.STRING,
->>>>>>> profile-update
             indoor_ota_nucs[0], indoor_ota_nucs)])
 
 portal.context.defineStructParameter(
