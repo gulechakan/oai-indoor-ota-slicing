@@ -112,7 +112,7 @@ In another session on the same node, bring the UE online:
 
 ```
 # turn modem on
-sudo modemctl full-functionality
+sudo sh -c "chat -t 1 -sv '' AT OK 'AT+CFUN=1' OK < /dev/ttyUSB2 > /dev/ttyUSB2"
 ```
 
 The UE should attach to the network and pick up an IP address on the wwan
@@ -141,13 +141,12 @@ Known Issues and Workarounds:
   state, so that the next time you start it, it may crash with a UHD error. If
   this happens, simply start it again.
 - The module may not attach to the network or pick up an IP address on the first
-  try. If so, put the module into airplane mode with `sudo modemctl
-  airplane-mode`, kill and restart quectel-CM, then bring the module back
-  online. If the module still fails to associate and/or pick up an IP, try
-  putting the module into airplane mode, rebooting the associated NUC, and
-  bringing the module back online again.
-- The modemctl tool may return an error for some commands. If so, just run the
-  command again.
+  try. If so, put the module into airplane mode with `sudo sh -c "chat -t 1 -sv ''
+  AT OK 'AT+CFUN=4' OK < /dev/ttyUSB2 > /dev/ttyUSB2"`, kill and restart
+  quectel-CM, then bring the module back online. If the module still fails to
+  associate and/or pick up an IP, try putting the module into airplane mode,
+  rebooting the associated NUC, and bringing the module back online again.
+- `chat` may return an error sometimes. If so, just run the command again.
 
 """
 
