@@ -226,7 +226,6 @@ pc.defineParameter(
     description="use a specific compute node for the SDR",
     typ=portal.ParameterType.STRING,
     defaultValue="",
-    legalValues=node_types,
     advanced=True
 )
 
