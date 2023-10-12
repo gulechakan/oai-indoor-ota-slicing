@@ -162,7 +162,6 @@ DEFAULT_NR_RAN_HASH = "1268b27c91be3a568dd352f2e9a21b3963c97432" # 2023.wk19
 DEFAULT_NR_CN_HASH = "v1.5.0"
 OAI_DEPLOY_SCRIPT = os.path.join(BIN_PATH, "deploy-oai.sh")
 
-
 def x310_node_pair(idx, x310_radio):
     role = "nodeb"
     node = request.RawPC("{}-gnb-comp".format(x310_radio))
@@ -220,6 +219,15 @@ pc.defineParameter(
     typ=portal.ParameterType.STRING,
     defaultValue=node_types[1],
     legalValues=node_types
+)
+
+pc.defineParameter(
+    name="sdr_node_id",
+    description="use a specific compute node for the SDR",
+    typ=portal.ParameterType.STRING,
+    defaultValue="",
+    legalValues=node_types,
+    advanced=True
 )
 
 pc.defineParameter(
@@ -312,7 +320,7 @@ pc.verifyParameters()
 request = pc.makeRequestRSpec()
 
 role = "cn"
-cn_node = request.RawPC("cn5g-docker-host")
+cn_node = request.RawPC("cn5g")
 cn_node.component_manager_id = COMP_MANAGER_ID
 cn_node.hardware_type = params.cn_nodetype
 cn_node.disk_image = UBUNTU_IMG
@@ -327,11 +335,21 @@ if params.oai_cn_commit_hash:
 else:
     oai_cn_hash = DEFAULT_NR_CN_HASH
 
-cmd = "{} '{}' {}".format(OAI_DEPLOY_SCRIPT, oai_cn_hash, role)
-cn_node.addService(rspec.Execute(shell="bash", command=cmd))
+# cmd = "{} '{}' {}".format(OAI_DEPLOY_SCRIPT, oai_cn_hash, role)
+# cn_node.addService(rspec.Execute(shell="bash", command=cmd))
 
-# single x310 for now
-x310_node_pair(0, params.x310_radio)
+srs_o_du = request.RawPC("srs-o-du")
+if params.sdr_node_id:
+    srs_o_du.component_id = params.sdr_node_id
+
+radio_if = srs_o_du.addInterface("radio-if")
+fh_link = request.Link("fh-link")
+fh_link.bandwidth = 10*1000*1000
+fh_link.addInterface(radio_if)
+
+nodeb_cn_if = srs_o_du.addInterface("nodeb-cn-if")
+nodeb_cn_if.addAddress(rspec.IPv4Address("192.168.1.2", "255.255.255.0"))
+cn_link.addInterface(nodeb_cn_if)
 
 # require all indoor OTA nucs for now
 for b210_node in params.b210_nodes:
