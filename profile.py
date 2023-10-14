@@ -277,7 +277,7 @@ indoor_ota_nucs = [
 pc.defineStructParameter(
     "b210_nodes", "Indoor OTA NUC with B210 and COTS UE",
     [ { "node_id": "ota-nuc1" } ],
-    multiValue=True, min=1, max=len(indoor_ota_nucs),
+    multiValue=True, min=0, max=len(indoor_ota_nucs),
     members=[
         portal.Parameter(
             "node_id", "Indoor OTA NUC", portal.ParameterType.STRING,
