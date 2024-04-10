@@ -274,15 +274,26 @@ pc.defineParameter(
 )
 
 indoor_ota_nucs = [
-    ("ota-nuc%d" % (i,), "Indoor OTA nuc#%d with B210 and COTS UE" % (i,)) for i in range(1, 5) ]
+    ("ota-nuc{}".format(i), "Indoor OTA nuc{} with B210 and COTS UE".format(i)) for i in range(1, 5)
+]
+
 pc.defineStructParameter(
-    "b210_nodes", "Indoor OTA NUC with B210 and COTS UE",
-    [ { "node_id": "ota-nuc1" } ],
-    multiValue=True, min=1, max=len(indoor_ota_nucs),
+    name="ue_nodes",
+    description="Indoor OTA NUC with COTS UE (can't be the same as gNodeB node!)",
+    defaultValue=[{ "node_id": "ota-nuc2" }],
+    multiValue=True,
+    min=1,
+    max=4,
     members=[
         portal.Parameter(
-            "node_id", "Indoor OTA NUC", portal.ParameterType.STRING,
-            indoor_ota_nucs[0], indoor_ota_nucs)])
+            "node_id",
+            "Indoor OTA NUC",
+            portal.ParameterType.STRING,
+            indoor_ota_nucs[0],
+            indoor_ota_nucs
+        )
+    ]
+)
 
 portal.context.defineStructParameter(
     "freq_ranges", "Frequency Ranges To Transmit In",
@@ -334,9 +345,8 @@ cn_node.addService(rspec.Execute(shell="bash", command=cmd))
 # single x310 for now
 x310_node_pair(0, params.x310_radio)
 
-# require all indoor OTA nucs for now
-for b210_node in params.b210_nodes:
-    b210_nuc_pair(b210_node.node_id)
+for ue_node in params.ue_nodes:
+    b210_nuc_pair(ue_node.node_id)
 
 for frange in params.freq_ranges:
     request.requestSpectrum(frange.freq_min, frange.freq_max, 0)
