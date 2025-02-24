@@ -28,23 +28,15 @@ function setup_cn_node {
       apt-transport-https \
       ca-certificates \
       curl \
+      docker.io \
+      docker-compose-v2 \
       gnupg \
       lsb-release
 
-    printf "adding docker gpg key"
-    until curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -; do
-        printf '.'
-        sleep 2
-    done
-
-    sudo add-apt-repository -y "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
     sudo add-apt-repository -y ppa:wireshark-dev/stable
     echo "wireshark-common wireshark-common/install-setuid boolean false" | sudo debconf-set-selections
 
     sudo DEBIAN_FRONTEND=noninteractive apt-get update && sudo apt-get install -y \
-        docker-ce \
-        docker-ce-cli \
-        containerd.io \
         wireshark \
         tshark
 
@@ -109,6 +101,7 @@ function setup_ran_node {
     echo installing supporting packages...
     sudo add-apt-repository -y ppa:ettusresearch/uhd
     sudo apt update && sudo apt install -y \
+        iperf3 \
         libboost-dev \
         libforms-dev \
         libforms-bin \
@@ -117,6 +110,7 @@ function setup_ran_node {
         uhd-host \
         zlib1g \
         zlib1g-dev
+    sudo uhd_images_downloader
     echo installing supporting packages... done.
 
     echo cloning and building oai ran...
