@@ -330,7 +330,7 @@ cn_node.disk_image = UBUNTU_IMG
 cn_if = cn_node.addInterface("cn-if")
 cn_if.addAddress(rspec.IPv4Address("192.168.1.1", "255.255.255.0"))
 cn_link = request.Link("cn-link")
-cn_link.bandwidth = 10*1000*1000
+cn_link.setNoBandwidthShaping()
 cn_link.addInterface(cn_if)
 
 if params.oai_cn_commit_hash:
