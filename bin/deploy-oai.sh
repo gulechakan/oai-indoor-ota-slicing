@@ -51,14 +51,6 @@ function setup_cn_node {
 
     sudo chmod +x /usr/local/bin/docker-compose
 
-    echo creating demo-oai bridge network...
-    sudo docker network create \
-      --driver=bridge \
-      --subnet=192.168.70.128/26 \
-      -o "com.docker.network.bridge.name"="demo-oai" \
-      demo-oai-public-net
-    echo creating demo-oai bridge network... done.
-
     sudo sysctl net.ipv4.conf.all.forwarding=1
     sudo iptables -P FORWARD ACCEPT
 
