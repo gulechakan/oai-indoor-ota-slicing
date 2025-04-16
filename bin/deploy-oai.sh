@@ -59,40 +59,12 @@ function setup_cn_node {
       demo-oai-public-net
     echo creating demo-oai bridge network... done.
 
-    echo pulling cn5g images...
-    sudo docker pull ubuntu:bionic
-    sudo docker pull mysql:8.0
-    sudo docker pull oaisoftwarealliance/oai-amf:$COMMIT_HASH
-    sudo docker pull oaisoftwarealliance/oai-nrf:$COMMIT_HASH
-    sudo docker pull oaisoftwarealliance/oai-spgwu-tiny:$COMMIT_HASH
-    sudo docker pull oaisoftwarealliance/oai-smf:$COMMIT_HASH
-    sudo docker pull oaisoftwarealliance/oai-udr:$COMMIT_HASH
-    sudo docker pull oaisoftwarealliance/oai-udm:$COMMIT_HASH
-    sudo docker pull oaisoftwarealliance/oai-ausf:$COMMIT_HASH
-    sudo docker pull oaisoftwarealliance/oai-upf-vpp:$COMMIT_HASH
-    sudo docker pull oaisoftwarealliance/oai-nssf:$COMMIT_HASH
-    sudo docker pull oaisoftwarealliance/oai-pcf:$COMMIT_HASH
-    sudo docker pull oaisoftwarealliance/oai-nef:$COMMIT_HASH
-    sudo docker pull oaisoftwarealliance/trf-gen-cn5g:latest
-
-    echo pulling cn5g images... done.
-
     sudo sysctl net.ipv4.conf.all.forwarding=1
     sudo iptables -P FORWARD ACCEPT
 
-    echo cloning and syncing oai-cn5g-fed...
-    cd $SRCDIR
-    git clone --branch $COMMIT_HASH $OAI_CN5G_REPO oai-cn5g-fed
-    cd oai-cn5g-fed
-    git checkout -f $COMMIT_HASH
-    ./scripts/syncComponents.sh
-    echo cloning and syncing oai-cn5g-fed... done.
-
-    echo replacing a couple of configuration files
-    cp /local/repository/etc/oai/docker-compose-mini-nrf.yaml /var/tmp/oai-cn5g-fed/docker-compose/docker-compose-mini-nrf.yaml
-    cp /local/repository/etc/oai/oai_db1.sql /var/tmp/oai-cn5g-fed/docker-compose/database/oai_db1.sql
+    # ignoring the COMMIT_HASH for now
+    sudo cp -r /local/repository/etc/oai/cn5g /var/tmp/oai-cn5g
     echo setting up cn node... done.
-
 }
 
 function setup_ran_node {
@@ -115,25 +87,20 @@ function setup_ran_node {
 
     echo cloning and building oai ran...
     cd $SRCDIR
-    git clone $OAI_RAN_MIRROR oairan
-    cd oairan
+    git clone $OAI_RAN_REPO openairinterface5g
+    cd openairinterface5g
     git checkout $COMMIT_HASH
-
-    source oaienv
     cd cmake_targets
 
-    ./build_oai -I --ninja
-    ./build_oai -w USRP \
-        --build-lib telnetsrv \
-        --build-lib nrscope \
-        $BUILD_ARGS --ninja
+    ./build_oai -I
+    ./build_oai -w USRP $BUILD_ARGS --ninja -C
     echo cloning and building oai ran... done.
 }
 
 function configure_nodeb {
     echo configuring nodeb...
     mkdir -p $SRCDIR/etc/oai
-    cp -r $ETCDIR/oai/* $SRCDIR/etc/oai/
+    cp -r $ETCDIR/oai/ran/* $SRCDIR/etc/oai/
     LANIF=`ip r | awk '/192\.168\.1\.0/{print $3}'`
     if [ ! -z $LANIF ]; then
       LANIP=`ip r | awk '/192\.168\.1\.0/{print $NF}'`

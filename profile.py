@@ -76,15 +76,15 @@ seconds for the services to start up. Make sure the script indicates that the
 services are healthy before moving on.
 
 ```
-cd /var/tmp/oai-cn5g-fed/docker-compose
-sudo python3 ./core-network.py --type start-mini --scenario 1
+cd /var/tmp/oai-cn5g
+sudo docker compose up -d
 ```
 
 In yet another session, start following the logs for the AMF. This way you can
 see when the UE syncs with the network.
 
 ```
-sudo docker logs -f oai-amf
+sudo docker compose logs -f oai-amf
 ```
 
 On `nodeb`:
@@ -152,14 +152,11 @@ Known Issues and Workarounds:
 
 BIN_PATH = "/local/repository/bin"
 ETC_PATH = "/local/repository/etc"
-LOWLAT_IMG = "urn:publicid:IDN+emulab.net+image+PowderTeam:U18LL-SRSLTE"
 UBUNTU_IMG = "urn:publicid:IDN+emulab.net+image+emulab-ops//UBUNTU22-64-STD"
 COTS_UE_IMG = "urn:publicid:IDN+emulab.net+image+PowderTeam:cots-jammy-image"
 COMP_MANAGER_ID = "urn:publicid:IDN+emulab.net+authority+cm"
-# old hash from branch bandwidth-testing-abs-sr-bsr-multiple_ue
-#TODO: check if merged to develop or develop now supports multiple UEs
-DEFAULT_NR_RAN_HASH = "1268b27c91be3a568dd352f2e9a21b3963c97432" # 2023.wk19
-DEFAULT_NR_CN_HASH = "v1.5.0"
+DEFAULT_NR_CN_HASH = "v2.1.9"
+DEFAULT_NR_RAN_HASH = "f3eb713084e4134ca265f1153b68a102714a319a" # 2025.wk15
 OAI_DEPLOY_SCRIPT = os.path.join(BIN_PATH, "deploy-oai.sh")
 
 
