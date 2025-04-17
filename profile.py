@@ -176,6 +176,7 @@ def b210_nuc_pair(b210_node):
     node.disk_image = COTS_UE_IMG
     node.addService(rspec.Execute(shell="bash", command="/local/repository/bin/module-off.sh"))
     node.addService(rspec.Execute(shell="bash", command="/local/repository/bin/update-udhcpc-script.sh"))
+    node.addService(rspec.Execute(shell="bash", command="sudo apt install -y iperf3"))
 
 pc = portal.Context()
 
