@@ -44,7 +44,7 @@ Startup scripts will still be running when your experiment becomes ready.  Watch
 
 After all startup scripts have finished...
 
-On `cn`, open a terminal session via SSH, or using the shell option for that node in the portal.
+On `cn5g-docker-host`, open a terminal session via SSH, or using the shell option for that node in the portal.
 
 Start the 5G core network services.
 
