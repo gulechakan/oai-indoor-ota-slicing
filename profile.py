@@ -44,29 +44,35 @@ Startup scripts will still be running when your experiment becomes ready.  Watch
 
 After all startup scripts have finished...
 
-On `cn`:
+On `cn`, open a terminal session via SSH, or using the shell option for that node in the portal.
 
-If you'd like to monitor traffic between the various network functions and the gNodeB, start tshark in a session:
+Start the 5G core network services.
+
+```
+cd /var/tmp/oai-cn5g
+sudo docker compose up -d
+```
+ 
+It will take several seconds for the services to start up. Since we started the services in detached mode, you can check the status of the services with:
+
+```
+sudo docker compose ps
+```
+
+In another session, start following the logs for the AMF. This way you can see when the UE attaches to the network.
+
+```
+sudo docker compose logs -f oai-amf
+```
+
+If you'd like to monitor traffic between the various network functions and the gNodeB, start tshark in yet another session:
 
 ```
 sudo tshark -i oai-cn5g \
   -f "not arp and not port 53 and not host archive.ubuntu.com and not host security.ubuntu.com"
 ```
 
-In another session, start the 5G core network services. It will take several seconds for the services to start up. Make sure the script indicates that the services are healthy before moving on.
-
-```
-cd /var/tmp/oai-cn5g
-sudo docker compose up -d
-```
-
-In yet another session, start following the logs for the AMF. This way you can see when the UE syncs with the network.
-
-```
-sudo docker compose logs -f oai-amf
-```
-
-On `nodeb`:
+Open a session on `ota-x310-X-gnb-comp` and start the gNodeB softmodem:
 
 ```
 sudo numactl --membind=0 --cpubind=0 \
