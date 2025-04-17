@@ -62,6 +62,7 @@ sudo docker compose ps
 In another session, start following the logs for the AMF. This way you can see when the UE attaches to the network.
 
 ```
+cd /var/tmp/oai-cn5g
 sudo docker compose logs -f oai-amf
 ```
 
