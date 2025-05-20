@@ -315,7 +315,7 @@ cmd = "{} '{}' {}".format(OAI_DEPLOY_SCRIPT, oai_cn_hash, role)
 cn_node.addService(rspec.Execute(shell="bash", command=cmd))
 
 # single x310 for now
-x310_node_pair(0, params.x310_radio)
+# x310_node_pair(0, params.x310_radio)
 
 # for ue_node in params.ue_nodes:
 #    b210_nuc_pair(ue_node.node_id)
