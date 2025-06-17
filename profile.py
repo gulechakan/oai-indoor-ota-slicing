@@ -102,29 +102,29 @@ pc.defineParameter(
     advanced=True
 )
 
-portal.context.defineStructParameter(
-    "freq_ranges", "Frequency Ranges To Transmit In",
-    defaultValue=[{"freq_min": 3550.0, "freq_max": 3600.0}],
-    multiValue=True,
-    min=0,
-    multiValueTitle="Frequency ranges to be used for transmission.",
-    members=[
-        portal.Parameter(
-            "freq_min",
-            "Frequency Range Min",
-            portal.ParameterType.BANDWIDTH,
-            3550.0,
-            longDescription="Values are rounded to the nearest kilohertz."
-        ),
-        portal.Parameter(
-            "freq_max",
-            "Frequency Range Max",
-            portal.ParameterType.BANDWIDTH,
-            3600.0,
-            longDescription="Values are rounded to the nearest kilohertz."
-        ),
-    ]
-)
+# portal.context.defineStructParameter(
+#     "freq_ranges", "Frequency Ranges To Transmit In",
+#     defaultValue=[{"freq_min": 3550.0, "freq_max": 3600.0}],
+#     multiValue=True,
+#     min=0,
+#     multiValueTitle="Frequency ranges to be used for transmission.",
+#     members=[
+#         portal.Parameter(
+#             "freq_min",
+#             "Frequency Range Min",
+#             portal.ParameterType.BANDWIDTH,
+#             3550.0,
+#             longDescription="Values are rounded to the nearest kilohertz."
+#         ),
+#         portal.Parameter(
+#             "freq_max",
+#             "Frequency Range Max",
+#             portal.ParameterType.BANDWIDTH,
+#             3600.0,
+#             longDescription="Values are rounded to the nearest kilohertz."
+#         ),
+#     ]
+# )
 
 params = pc.bindParameters()
 pc.verifyParameters()
@@ -157,8 +157,8 @@ cn_link.addInterface(cn_if)
 deploy_cmd = "/local/repository/bin/deploy-oai-cn5g.sh {} {}".format(params.repo_url, params.repo_branch)
 cn_node.addService(rspec.Execute(shell="bash", command=deploy_cmd))
 
-for frange in params.freq_ranges:
-    request.requestSpectrum(frange.freq_min, frange.freq_max, 0)
+# for frange in params.freq_ranges:
+#     request.requestSpectrum(frange.freq_min, frange.freq_max, 0)
 
 # Tour
 tour = IG.Tour()
