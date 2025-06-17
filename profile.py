@@ -154,7 +154,7 @@ cn_link.addInterface(cn_if)
 # cn_node.addService(rspec.Execute(shell="bash", command=cmd))
 
 # CN5G Startup Script
-deploy_cmd = f"/local/repository/bin/deploy-oai-cn5g.sh {params.repo_url} {params.repo_branch}"
+deploy_cmd = "/local/repository/bin/deploy-oai-cn5g.sh {} {}".format(params.repo_url, params.repo_branch)
 cn_node.addService(rspec.Execute(shell="bash", command=deploy_cmd))
 
 for frange in params.freq_ranges:
