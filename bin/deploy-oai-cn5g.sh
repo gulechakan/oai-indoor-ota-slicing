@@ -15,6 +15,50 @@ cd "$CN_DIR"
 # Clone the modified CN5G repo
 sudo git clone -b "$BRANCH" "$GIT_REPO" .
 
+sudo sysctl net.ipv4.conf.all.forwarding=1
+sudo iptables -P FORWARD ACCEPT
+
+# Setup the CN node
+function setup_cn_node {
+    # Install docker, docker compose, wireshark/tshark
+    echo setting up cn node
+    sudo apt-get update && sudo apt-get install -y \
+      apt-transport-https \
+      ca-certificates \
+      curl \
+      docker.io \
+      docker-compose-v2 \
+      gnupg \
+      lsb-release
+
+    sudo add-apt-repository -y ppa:wireshark-dev/stable
+    echo "wireshark-common wireshark-common/install-setuid boolean false" | sudo debconf-set-selections
+
+    sudo DEBIAN_FRONTEND=noninteractive apt-get update && sudo apt-get install -y \
+        wireshark \
+        tshark
+
+    sudo systemctl enable docker
+    sudo usermod -aG docker $USER
+
+    printf "installing compose"
+    until sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose; do
+        printf '.'
+        sleep 2
+    done
+
+    sudo chmod +x /usr/local/bin/docker-compose
+
+    sudo sysctl net.ipv4.conf.all.forwarding=1
+    sudo iptables -P FORWARD ACCEPT
+
+    # ignoring the COMMIT_HASH for now
+    # sudo cp -r /local/repository/etc/oai/cn5g /var/tmp/oai-cn5g
+    echo setting up cn node... done.
+}
+
+setup_cn_node
+
 # # Optional: build step if your Docker images are custom
 # # echo "Building Docker images..."
 # # sudo docker compose -f docker-compose-basic-nrf.yaml build
