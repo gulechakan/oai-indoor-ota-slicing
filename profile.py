@@ -130,7 +130,7 @@ params = pc.bindParameters()
 pc.verifyParameters()
 request = pc.makeRequestRSpec()
 
-# role = "cn"
+role = "cn"
 
 # CN5G Host
 cn_node = request.RawPC("cn5g-host")
@@ -145,17 +145,17 @@ cn_link = request.Link("cn-link")
 cn_link.setNoBandwidthShaping()
 cn_link.addInterface(cn_if)
 
-# if params.oai_cn_commit_hash:
-#     oai_cn_hash = params.oai_cn_commit_hash
-# else:
-#     oai_cn_hash = DEFAULT_NR_CN_HASH
+if params.oai_cn_commit_hash:
+    oai_cn_hash = params.oai_cn_commit_hash
+else:
+    oai_cn_hash = DEFAULT_NR_CN_HASH
 
-# cmd = "{} '{}' {}".format(OAI_DEPLOY_SCRIPT, oai_cn_hash, role)
-# cn_node.addService(rspec.Execute(shell="bash", command=cmd))
+cmd = "{} '{}' {}".format(OAI_CN5G_DEPLOY_SCRIPT, oai_cn_hash, role)
+cn_node.addService(rspec.Execute(shell="bash", command=cmd))
 
 # CN5G Startup Script
-deploy_cmd = "/local/repository/bin/deploy-oai-cn5g.sh {} {}".format(params.repo_url, params.repo_branch)
-cn_node.addService(rspec.Execute(shell="bash", command=deploy_cmd))
+# deploy_cmd = "/local/repository/bin/deploy-oai-cn5g.sh {} {}".format(params.repo_url, params.repo_branch)
+# cn_node.addService(rspec.Execute(shell="bash", command=deploy_cmd))
 
 # for frange in params.freq_ranges:
 #     request.requestSpectrum(frange.freq_min, frange.freq_max, 0)
