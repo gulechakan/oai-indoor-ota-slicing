@@ -5,7 +5,7 @@ set -e
 # Define working directory for CN5G
 CN_DIR="/var/tmp/oai-cn5g"
 GIT_REPO="https://github.com/gulechakan/oai-5gc-modified.git"
-BRANCH="main"  # change to your custom branch name if needed
+BRANCH="master"  # change to your custom branch name if needed
 
 # Clean up any previous attempt
 sudo rm -rf "$CN_DIR"
