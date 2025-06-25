@@ -157,8 +157,8 @@ cn_link.addInterface(cn_if)
 deploy_cmd = "/local/repository/bin/deploy-oai-cn5g.sh {} {}".format(params.repo_url, params.repo_branch)
 cn_node.addService(rspec.Execute(shell="bash", command=deploy_cmd))
 
-for frange in params.freq_ranges:
-    request.requestSpectrum(frange.freq_min, frange.freq_max, 0)
+# for frange in params.freq_ranges:
+#     request.requestSpectrum(frange.freq_min, frange.freq_max, 0)
 
 # Tour
 tour = IG.Tour()
