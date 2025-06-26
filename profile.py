@@ -139,11 +139,11 @@ cn_node.hardware_type = params.cn_nodetype
 cn_node.disk_image = UBUNTU_IMG
 
 # CN5G Interface + Subnet
-cn_if = cn_node.addInterface("cn-if")
-cn_if.addAddress(rspec.IPv4Address("192.168.1.1", "255.255.255.0"))
-cn_link = request.Link("cn-link")
-cn_link.setNoBandwidthShaping()
-cn_link.addInterface(cn_if)
+# cn_if = cn_node.addInterface("cn-if")
+# cn_if.addAddress(rspec.IPv4Address("192.168.1.1", "255.255.255.0"))
+# cn_link = request.Link("cn-link")
+# cn_link.setNoBandwidthShaping()
+# cn_link.addInterface(cn_if)
 
 # if params.oai_cn_commit_hash:
 #     oai_cn_hash = params.oai_cn_commit_hash

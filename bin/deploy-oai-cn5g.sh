@@ -3,7 +3,8 @@
 set -e
 
 # Define working directory for CN5G
-CN_DIR="/var/tmp/oai-cn5g"
+# CN_DIR="/var/tmp/oai-cn5g"
+CN_DIR="/opt/oai-cn5g"
 GIT_REPO="https://github.com/gulechakan/oai-5gc-modified.git"
 BRANCH="master"  # change to your custom branch name if needed
 
