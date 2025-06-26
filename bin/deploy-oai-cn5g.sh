@@ -19,8 +19,8 @@ ls -ld mydata
 # CN_DIR="/var/tmp/oai-cn5g"
 # CN_DIR="/opt/oai-cn5g"
 CN_DIR="/mydata/oai-cn5g"
-GIT_REPO="https://github.com/gulechakan/oai-5gc-modified.git"
-BRANCH="master"  # change to your custom branch name if needed
+# GIT_REPO="https://github.com/gulechakan/oai-5gc-modified.git"
+# BRANCH="master"  # change to your custom branch name if needed
 
 # Clean up any previous attempt
 sudo rm -rf "$CN_DIR"
@@ -28,7 +28,7 @@ mkdir -p "$CN_DIR"
 cd "$CN_DIR"
 
 # Clone the modified CN5G repo
-sudo git clone -b "$BRANCH" "$GIT_REPO" .
+# sudo git clone -b "$BRANCH" "$GIT_REPO" .
 
 sudo sysctl net.ipv4.conf.all.forwarding=1
 sudo iptables -P FORWARD ACCEPT
