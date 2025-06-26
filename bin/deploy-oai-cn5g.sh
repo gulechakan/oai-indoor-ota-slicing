@@ -2,9 +2,23 @@
 # Exit on error
 set -e
 
+cd /
+sudo mkdir mydata
+sudo /usr/local/etc/emulab/mkextrafs.pl -f /mydata
+
+# change the ownership of this new space
+username=$(whoami)
+groupname=$(id -gn)
+
+sudo chown $username:$groupname mydata
+chmod 775 mydata
+# verify the result
+ls -ld mydata
+
 # Define working directory for CN5G
 # CN_DIR="/var/tmp/oai-cn5g"
-CN_DIR="/opt/oai-cn5g"
+# CN_DIR="/opt/oai-cn5g"
+CN_DIR="/mydata/oai-cn5g"
 GIT_REPO="https://github.com/gulechakan/oai-5gc-modified.git"
 BRANCH="master"  # change to your custom branch name if needed
 
