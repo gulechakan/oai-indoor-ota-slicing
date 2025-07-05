@@ -69,7 +69,7 @@ OAI_CN5G_DEPLOY_SCRIPT = os.path.join(BIN_PATH, "deploy-oai-cn5g.sh")
 pc = portal.Context()
 
 node_types = [
-    ("d430", "Emulab, d430, d710"),
+    ("d430", "Emulab, d430", "d710", "Emulab, d710"),
 ]
 
 pc.defineParameter(
@@ -90,7 +90,7 @@ pc.defineParameter(
     name="cn_nodetype",
     description="Type of compute node to use for CN node (if included)",
     typ=portal.ParameterType.STRING,
-    defaultValue=node_types[3],
+    defaultValue=node_types[2],
     legalValues=node_types
 )
 
