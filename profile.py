@@ -91,7 +91,7 @@ pc.defineParameter(
     name="cn_nodetype",
     description="Type of compute node to use for CN node (if included)",
     typ=portal.ParameterType.STRING,
-    defaultValue=node_types[1],
+    defaultValue=node_types[0],
     legalValues=node_types
 )
 
