@@ -23,9 +23,9 @@ CN_DIR="/mydata/oai-cn5g"
 # BRANCH="master"  # change to your custom branch name if needed
 
 # Clean up any previous attempt
-sudo rm -rf "$CN_DIR"
-mkdir -p "$CN_DIR"
-cd "$CN_DIR"
+# sudo rm -rf "$CN_DIR"
+# mkdir -p "$CN_DIR"
+# cd "$CN_DIR"
 
 # Clone the modified CN5G repo
 # sudo git clone -b "$BRANCH" "$GIT_REPO" .
